@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, ReactNode, CSSProperties } from "react";
 
 const NAV_LINKS = ["About", "Services", "Facilities", "Quality", "Clients", "Gallery", "Contact"];
 
@@ -102,7 +102,7 @@ function useInView(threshold = 0.12) {
   return { ref, visible };
 }
 
-function Reveal({ children, delay = 0, className = "", style = {} }) {
+function Reveal({ children, delay = 0, className = "", style = {} }: { children: ReactNode; delay?: number; className?: string; style?: CSSProperties }) {
   const { ref, visible } = useInView();
   return (
     <div
