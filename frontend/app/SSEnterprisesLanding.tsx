@@ -74,7 +74,6 @@ const CLIENTS = [
   "Maharashtra Industries",
 ];
 
-// Slideshow images
 const SLIDESHOW_IMAGES = [
   { src: "/plantouterimg.jpg", caption: "S.S. Enterprises — Nashik" },
   { src: "/sliverplaintingplant.jpg", caption: "Silver Plating Production Line" },
@@ -84,6 +83,40 @@ const SLIDESHOW_IMAGES = [
   { src: "/office.jpg", caption: "Our Office" },
   { src: "/chemicals.jpg", caption: "Electroplating Chemicals" },
   { src: "/IMG_1083.jpg", caption: "Industrial Operations" },
+];
+
+const GALLERY_IMAGES = [
+  { src: "/sliverplaintingplant.jpg", label: "Silver Plating Plant" },
+  { src: "/silverplaintinoutput.jpg", label: "Silver Plating Output" },
+  { src: "/sliverplaintingoutput.jpg", label: "Plating Output Samples" },
+  { src: "/finished product.jpg", label: "Finished Products" },
+  { src: "/chemicals.jpg", label: "Process Chemicals" },
+  { src: "/IMG_1071.jpg", label: "Facility View" },
+  { src: "/IMG_1072.jpg", label: "Production Line" },
+  { src: "/IMG_1077.jpg", label: "Workshop Area" },
+  { src: "/IMG_1078.jpg", label: "Machinery" },
+  { src: "/IMG_1079.jpg", label: "Equipment" },
+  { src: "/IMG_1080.jpg", label: "Plant Interior" },
+  { src: "/IMG_1083.jpg", label: "Operations" },
+  { src: "/IMG_1084.jpg", label: "Assembly" },
+  { src: "/IMG_1088.jpg", label: "Processing Unit" },
+  { src: "/IMG_1089.jpg", label: "Components" },
+  { src: "/IMG_1090.jpg", label: "Production" },
+  { src: "/IMG_1091.jpg", label: "Fabrication" },
+  { src: "/IMG_1092.jpg", label: "Workshop" },
+  { src: "/IMG_1095.jpg", label: "Plating Line" },
+  { src: "/IMG_1097.jpg", label: "Quality Check" },
+  { src: "/IMG_1098.jpg", label: "Inspection" },
+  { src: "/IMG_1099.jpg", label: "Finishing" },
+  { src: "/IMG_1100.jpg", label: "Output" },
+  { src: "/IMG_1102.jpg", label: "Full Plant" },
+  { src: "/IMG_1104.jpg", label: "Details" },
+  { src: "/IMG_1105.jpg", label: "Final Products" },
+  { src: "/10.jpg", label: "Electroplating Line" },
+  { src: "/11.jpg", label: "Precision Parts" },
+  { src: "/13.jpg", label: "CNC Operations" },
+  { src: "/15.jpg", label: "Finished Products" },
+  { src: "/16.jpg", label: "Packaging Unit" },
 ];
 
 function useInView(threshold = 0.12) {
@@ -120,6 +153,7 @@ function Reveal({ children, delay = 0, className = "", style = {} }: { children:
   );
 }
 
+// ─── HERO SLIDESHOW ─── (optimised: only 2 slides mounted at a time, opacity-only transition)
 function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
@@ -143,7 +177,6 @@ function HeroSlideshow() {
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}>
-      {/* Only mount current + prev slide — never all slides at once */}
       {SLIDESHOW_IMAGES.map((img, i) => {
         if (i !== current && i !== prev) return null;
         return (
@@ -155,19 +188,14 @@ function HeroSlideshow() {
               backgroundSize: "cover",
               backgroundPosition: "center",
               opacity: i === current ? 1 : 0,
-              // No transform animation — avoids GPU layer thrashing on every slide
               transition: "opacity 1.1s cubic-bezier(0.4,0,0.2,1)",
               zIndex: i === current ? 2 : 1,
             }}
           />
         );
       })}
-      {/* Dark overlay */}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(8,12,20,0.85) 40%, rgba(8,12,20,0.4) 100%)", zIndex: 3 }} />
-      {/* Subtle grain */}
       <div style={{ position: "absolute", inset: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")", opacity: 0.4, zIndex: 4, pointerEvents: "none" }} />
-
-      {/* Slide indicators */}
       <div style={{ position: "absolute", bottom: "2.5rem", right: "3rem", zIndex: 10, display: "flex", gap: "0.5rem", alignItems: "center" }}>
         {SLIDESHOW_IMAGES.map((_, i) => (
           <button
@@ -183,8 +211,6 @@ function HeroSlideshow() {
           />
         ))}
       </div>
-
-      {/* Caption */}
       <div style={{
         position: "absolute", bottom: "2.5rem", left: "6rem", zIndex: 10,
         fontSize: "0.72rem", letterSpacing: 3, textTransform: "uppercase",
@@ -196,102 +222,78 @@ function HeroSlideshow() {
   );
 }
 
+// ─── GALLERY SLIDESHOW ─── (optimised: single keyed slide, windowed thumbnails, no JS hover handlers)
 function GallerySlideshow() {
-  const galleryImages = [
-    { src: "/sliverplaintingplant.jpg", label: "Silver Plating Plant" },
-    { src: "/silverplaintinoutput.jpg", label: "Silver Plating Output" },
-    { src: "/sliverplaintingoutput.jpg", label: "Plating Output Samples" },
-    { src: "/finished product.jpg", label: "Finished Products" },
-    { src: "/chemicals.jpg", label: "Process Chemicals" },
-    { src: "/IMG_1071.jpg", label: "Facility View" },
-    { src: "/IMG_1072.jpg", label: "Production Line" },
-    { src: "/IMG_1077.jpg", label: "Workshop Area" },
-    { src: "/IMG_1078.jpg", label: "Machinery" },
-    { src: "/IMG_1079.jpg", label: "Equipment" },
-    { src: "/IMG_1080.jpg", label: "Plant Interior" },
-    { src: "/IMG_1083.jpg", label: "Operations" },
-    { src: "/IMG_1084.jpg", label: "Assembly" },
-    { src: "/IMG_1088.jpg", label: "Processing Unit" },
-    { src: "/IMG_1089.jpg", label: "Components" },
-    { src: "/IMG_1090.jpg", label: "Production" },
-    { src: "/IMG_1091.jpg", label: "Fabrication" },
-    { src: "/IMG_1092.jpg", label: "Workshop" },
-    { src: "/IMG_1095.jpg", label: "Plating Line" },
-    { src: "/IMG_1097.jpg", label: "Quality Check" },
-    { src: "/IMG_1098.jpg", label: "Inspection" },
-    { src: "/IMG_1099.jpg", label: "Finishing" },
-    { src: "/IMG_1100.jpg", label: "Output" },
-    { src: "/IMG_1102.jpg", label: "Full Plant" },
-    { src: "/IMG_1104.jpg", label: "Details" },
-    { src: "/IMG_1105.jpg", label: "Final Products" },
-    { src: "/10.jpg", label: "Electroplating Line" },
-    { src: "/11.jpg", label: "Precision Parts" },
-    { src: "/13.jpg", label: "CNC Operations" },
-    { src: "/15.jpg", label: "Finished Products" },
-    { src: "/16.jpg", label: "Packaging Unit" },
-  ];
-
-  const total = galleryImages.length;
+  const total = GALLERY_IMAGES.length;
   const [active, setActive] = useState(0);
   const [auto, setAuto] = useState(true);
+  const [seenThumbs, setSeenThumbs] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]));
 
   useEffect(() => {
     if (!auto) return;
-    const t = setInterval(() => setActive(a => (a + 1) % total), 3500);
+    const t = setInterval(() => setActive(a => {
+      const next = (a + 1) % total;
+      setSeenThumbs(prev => { const s = new Set(prev); s.add(next); return s; });
+      return next;
+    }), 3500);
     return () => clearInterval(t);
   }, [auto, total]);
 
-  const goPrev = () => { setAuto(false); setActive(a => (a - 1 + total) % total); };
-  const goNext = () => { setAuto(false); setActive(a => (a + 1) % total); };
+  const go = (i: number) => {
+    setAuto(false);
+    setActive(i);
+    setSeenThumbs(prev => { const s = new Set(prev); s.add(i); return s; });
+  };
+  const goPrev = () => go((active - 1 + total) % total);
+  const goNext = () => go((active + 1) % total);
 
-  // Windowed rendering: only mount prev, current, next slides
-  const isVisible = (i: number) => {
-    const p = (active - 1 + total) % total;
-    const n = (active + 1) % total;
-    return i === active || i === p || i === n;
+  // Only render thumbnails within ±5 of active (or already seen)
+  const shouldLoadThumb = (i: number) => {
+    if (seenThumbs.has(i)) return true;
+    const dist = Math.min(Math.abs(i - active), total - Math.abs(i - active));
+    return dist <= 5;
   };
 
   return (
     <div style={{ position: "relative" }}>
-      {/* Main display */}
+      {/* Main slide — single mount, keyed swap for instant replace */}
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0d1117" }}>
-        {galleryImages.map((img, i) => {
-          if (!isVisible(i)) return null; // Only mount 3 slides at a time
-          return (
-            <div key={i} style={{
-              position: "absolute", inset: 0,
-              opacity: i === active ? 1 : 0,
-              // No scale transform — avoids GPU layers on hidden slides
-              transition: "opacity 0.8s ease",
-              zIndex: i === active ? 2 : 1,
-            }}>
-              <img
-                src={img.src}
-                alt={img.label}
-                loading={i === active ? "eager" : "lazy"}
-                decoding="async"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-              <div style={{
-                position: "absolute", inset: 0,
-                background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 50%)",
-              }} />
-              <div style={{
-                position: "absolute", bottom: "1.5rem", left: "1.5rem",
-                color: "#fff", fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "1.1rem", fontStyle: "italic", letterSpacing: 1,
-              }}>
-                {img.label}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Nav arrows */}
-        {[
-          { dir: "left", action: goPrev, symbol: "\u2039" },
-          { dir: "right", action: goNext, symbol: "\u203a" },
-        ].map(({ dir, action, symbol }) => (
+        <img
+          key={active}
+          src={GALLERY_IMAGES[active].src}
+          alt={GALLERY_IMAGES[active].label}
+          fetchPriority="high"
+          decoding="async"
+          style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            animation: "galFadeIn 0.5s ease",
+          }}
+        />
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 50%)",
+          pointerEvents: "none",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "1.5rem", left: "1.5rem",
+          color: "#fff", fontFamily: "'Cormorant Garamond', serif",
+          fontSize: "1.1rem", fontStyle: "italic", letterSpacing: 1,
+          pointerEvents: "none",
+        }}>
+          {GALLERY_IMAGES[active].label}
+        </div>
+        {/* Counter */}
+        <div style={{
+          position: "absolute", top: "1rem", right: "1rem",
+          background: "rgba(8,12,20,0.6)", backdropFilter: "blur(4px)",
+          border: "1px solid rgba(201,168,76,0.3)",
+          color: "rgba(232,237,242,0.7)",
+          fontSize: "0.7rem", letterSpacing: 1, padding: "0.3rem 0.7rem",
+          fontFamily: "'DM Sans', sans-serif",
+        }}>
+          {active + 1} / {total}
+        </div>
+        {[{ dir: "left", action: goPrev, symbol: "‹" }, { dir: "right", action: goNext, symbol: "›" }].map(({ dir, action, symbol }) => (
           <button key={dir} onClick={action} style={{
             position: "absolute", top: "50%", transform: "translateY(-50%)",
             [dir]: "1rem", zIndex: 10,
@@ -299,40 +301,43 @@ function GallerySlideshow() {
             background: "rgba(201,168,76,0.2)", border: "1px solid rgba(201,168,76,0.5)",
             color: "#C9A84C", fontSize: "1.8rem", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            backdropFilter: "blur(4px)",
-            transition: "background 0.2s",
-            lineHeight: 1,
+            backdropFilter: "blur(4px)", lineHeight: 1,
           }}>
             {symbol}
           </button>
         ))}
       </div>
 
-      {/* Thumbnails — lazy loaded */}
+      {/* Thumbnails — windowed rendering, no scale transforms */}
       <div style={{
         display: "flex", gap: "0.5rem", marginTop: "0.75rem",
         overflowX: "auto", paddingBottom: "0.25rem",
         scrollbarWidth: "none",
       }}>
-        {galleryImages.map((img, i) => (
+        {GALLERY_IMAGES.map((img, i) => (
           <div
             key={i}
-            onClick={() => { setAuto(false); setActive(i); }}
+            onClick={() => go(i)}
             style={{
               flexShrink: 0, width: 72, height: 52,
               cursor: "pointer", overflow: "hidden",
               border: i === active ? "2px solid #C9A84C" : "2px solid transparent",
               opacity: i === active ? 1 : 0.5,
-              transition: "all 0.25s",
+              transition: "opacity 0.25s, border-color 0.25s",
+              background: "#0d1117",
             }}
           >
-            <img
-              src={img.src}
-              alt={img.label}
-              loading="lazy"
-              decoding="async"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+            {shouldLoadThumb(i) ? (
+              <img
+                src={img.src}
+                alt={img.label}
+                loading="lazy"
+                decoding="async"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <div style={{ width: "100%", height: "100%", background: "rgba(255,255,255,0.05)" }} />
+            )}
           </div>
         ))}
       </div>
@@ -395,6 +400,16 @@ export default function SSEnterprisesLanding() {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
+        /* Gallery slide fade — CSS-only, no JS needed */
+        @keyframes galFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+
+        /* CSS hover zoom — GPU composited, no JS layout recalc */
+        .img-zoom { transition: transform 0.7s ease; will-change: transform; }
+        .img-zoom:hover { transform: scale(1.05); }
+        .img-zoom-sm:hover { transform: scale(1.08); }
 
         .nav-btn {
           background: none; border: none; cursor: pointer;
@@ -561,6 +576,17 @@ export default function SSEnterprisesLanding() {
           background: rgba(201,168,76,0.04);
         }
 
+        /* Photo grid tiles — CSS hover only, no JS */
+        .photo-tile { height: 190px; overflow: hidden; position: relative; }
+        .photo-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; will-change: transform; }
+        .photo-tile:hover img { transform: scale(1.1); }
+        .photo-tile-label {
+          position: absolute; bottom: 0.6rem; left: 0.7rem;
+          color: rgba(232,237,242,0.8); font-size: 0.58rem;
+          letter-spacing: 2px; text-transform: uppercase;
+          font-family: 'DM Sans', sans-serif; pointer-events: none;
+        }
+
         @media (max-width: 768px) {
           .nav-links-desktop { display: none !important; }
           .hero-content { padding: 6rem 1.5rem 3rem !important; }
@@ -587,7 +613,6 @@ export default function SSEnterprisesLanding() {
         padding: "0 4rem",
         transition: "all 0.4s ease",
       }}>
-        {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.9rem" }}>
           <div style={{
             width: 34, height: 34,
@@ -612,7 +637,6 @@ export default function SSEnterprisesLanding() {
           </div>
         </div>
 
-        {/* Nav Links */}
         <ul className="nav-links-desktop" style={{ display: "flex", gap: "2.5rem", listStyle: "none" }}>
           {NAV_LINKS.map((l) => (
             <li key={l}>
@@ -626,7 +650,6 @@ export default function SSEnterprisesLanding() {
           ))}
         </ul>
 
-        {/* CTA */}
         <button onClick={() => scrollTo("contact")} className="gold-btn" style={{ padding: "0.65rem 1.5rem", fontSize: "0.65rem" }}>
           Get Quote
         </button>
@@ -635,8 +658,6 @@ export default function SSEnterprisesLanding() {
       {/* ─── HERO ─── */}
       <section id="home" style={{ position: "relative", height: "100vh", minHeight: 600, overflow: "hidden" }}>
         <HeroSlideshow />
-
-        {/* Content */}
         <div className="hero-content" style={{
           position: "absolute", inset: 0, zIndex: 5,
           display: "flex", flexDirection: "column", justifyContent: "center",
@@ -684,15 +705,10 @@ export default function SSEnterprisesLanding() {
             animation: "fadeUp 0.8s ease both",
             animationDelay: "0.65s",
           }}>
-            <button onClick={() => scrollTo("services")} className="gold-btn">
-              Our Capabilities
-            </button>
-            <button onClick={() => scrollTo("gallery")} className="outline-btn">
-              View Gallery
-            </button>
+            <button onClick={() => scrollTo("services")} className="gold-btn">Our Capabilities</button>
+            <button onClick={() => scrollTo("gallery")} className="outline-btn">View Gallery</button>
           </div>
 
-          {/* Vertical text */}
           <div style={{
             position: "absolute", right: "3rem", top: "50%",
             transform: "translateY(-50%) rotate(90deg)",
@@ -705,7 +721,6 @@ export default function SSEnterprisesLanding() {
           </div>
         </div>
 
-        {/* Bottom fade */}
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, height: 120,
           background: "linear-gradient(to bottom, transparent, #080C14)",
@@ -748,50 +763,32 @@ export default function SSEnterprisesLanding() {
       {/* ─── ABOUT ─── */}
       <section id="about" className="section-pad" style={{ padding: "9rem 6rem", background: "#080C14" }}>
         <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "6rem", alignItems: "center" }}>
-          {/* Left: Images */}
           <Reveal>
             <div style={{ position: "relative", paddingBottom: "3rem" }}>
-              {/* Main image */}
               <div style={{
-                position: "relative",
-                width: "85%",
-                aspectRatio: "4/3",
-                overflow: "hidden",
-                boxShadow: "0 40px 80px rgba(0,0,0,0.5)",
+                position: "relative", width: "85%", aspectRatio: "4/3",
+                overflow: "hidden", boxShadow: "0 40px 80px rgba(0,0,0,0.5)",
               }}>
-                <img src="/18.jpg" alt="Plating Facility" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <div style={{
-                  position: "absolute", inset: 0,
-                  background: "linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 60%)",
-                }} />
+                <img src="/18.jpg" alt="Plating Facility" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 60%)" }} />
               </div>
-
-              {/* Overlapping secondary image */}
               <div style={{
-                position: "absolute",
-                bottom: 0, right: 0,
+                position: "absolute", bottom: 0, right: 0,
                 width: "52%", aspectRatio: "1/1",
-                overflow: "hidden",
-                boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+                overflow: "hidden", boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
                 border: "4px solid #080C14",
               }}>
-                <img src="/2.jpg" alt="Components" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/2.jpg" alt="Components" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-
-              {/* Gold accent bar */}
               <div style={{
                 position: "absolute", top: "2rem", left: "-1.5rem",
                 width: 4, height: "50%",
                 background: "linear-gradient(to bottom, #C9A84C, rgba(201,168,76,0))",
               }} />
-
-              {/* ISO badge */}
               <div style={{
                 position: "absolute", top: "1.5rem", right: "16%",
-                background: "#C9A84C",
-                padding: "1.2rem 1.5rem",
-                textAlign: "center",
-                boxShadow: "0 15px 40px rgba(201,168,76,0.3)",
+                background: "#C9A84C", padding: "1.2rem 1.5rem",
+                textAlign: "center", boxShadow: "0 15px 40px rgba(201,168,76,0.3)",
               }}>
                 <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", color: "#080C14", letterSpacing: 2, lineHeight: 1 }}>ISO</div>
                 <div style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: 2, color: "rgba(8,12,20,0.7)", marginTop: 3 }}>CERTIFIED</div>
@@ -799,41 +796,23 @@ export default function SSEnterprisesLanding() {
             </div>
           </Reveal>
 
-          {/* Right: Text */}
           <Reveal delay={150}>
             <div>
               <div className="section-label">Who We Are</div>
               <h2 className="section-heading" style={{ marginBottom: "2rem" }}>
                 Precision &<br /><span>Quality</span> in Every<br />Component
               </h2>
-
               {[
                 "S.S. Enterprises is a multi-capability industrial manufacturer based in MIDC Ambad, Nashik — specialising in electroplating, fabrication, FRP components, and supply of ferrous and non-ferrous assemblies.",
                 "Founded on a commitment to precision and reliability, we serve clients across automotive, electrical, and engineering sectors with a holistic approach: from raw material supply through to finished, packaged products.",
                 "Our in-house Silver & Tin electroplating lines, FRP component manufacturing, and XRF-verified quality testing make us a one-stop industrial partner trusted by leading names across Maharashtra.",
               ].map((text, i) => (
-                <p key={i} style={{
-                  fontSize: "0.92rem",
-                  color: "rgba(232,237,242,0.55)",
-                  lineHeight: 1.95,
-                  marginBottom: "1.2rem",
-                  fontWeight: 300,
-                }}>
+                <p key={i} style={{ fontSize: "0.92rem", color: "rgba(232,237,242,0.55)", lineHeight: 1.95, marginBottom: "1.2rem", fontWeight: 300 }}>
                   {text}
                 </p>
               ))}
-
-              <div style={{
-                marginTop: "2.5rem",
-                paddingLeft: "1.5rem",
-                borderLeft: "2px solid #C9A84C",
-              }}>
-                <p style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "1.15rem", fontStyle: "italic",
-                  color: "rgba(232,237,242,0.7)",
-                  lineHeight: 1.8,
-                }}>
+              <div style={{ marginTop: "2.5rem", paddingLeft: "1.5rem", borderLeft: "2px solid #C9A84C" }}>
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", fontStyle: "italic", color: "rgba(232,237,242,0.7)", lineHeight: 1.8 }}>
                   "Committed to CQD — Cost, Quality & Delivery — we use lean manufacturing and FIFO systems to ensure every batch meets the highest standards."
                 </p>
               </div>
@@ -851,40 +830,21 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ marginBottom: "4rem" }}>
             <div className="section-label">What We Do</div>
-            <h2 className="section-heading">
-              Industrial<br /><span>Capabilities</span>
-            </h2>
+            <h2 className="section-heading">Industrial<br /><span>Capabilities</span></h2>
           </div>
         </Reveal>
-
         <div className="services-grid" style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "1px",
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.04)",
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "1px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.04)",
         }}>
           {SERVICES.map((s, i) => (
             <Reveal key={i} delay={i * 60}>
               <div className="service-card">
-                {/* Tag */}
-                <div style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "0.7rem", fontWeight: 400,
-                  color: "rgba(201,168,76,0.4)",
-                  letterSpacing: 3,
-                  marginBottom: "1.5rem",
-                }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.7rem", fontWeight: 400, color: "rgba(201,168,76,0.4)", letterSpacing: 3, marginBottom: "1.5rem" }}>
                   {s.tag}
                 </div>
                 <div style={{ fontSize: "2rem", marginBottom: "1.2rem" }}>{s.icon}</div>
-                <h3 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "1.5rem", fontWeight: 600,
-                  color: "#E8EDF2",
-                  marginBottom: "0.8rem",
-                  letterSpacing: 0.3,
-                }}>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem", fontWeight: 600, color: "#E8EDF2", marginBottom: "0.8rem", letterSpacing: 0.3 }}>
                   {s.title}
                 </h3>
                 <p style={{ fontSize: "0.85rem", color: "rgba(232,237,242,0.45)", lineHeight: 1.85, fontWeight: 300 }}>
@@ -901,23 +861,16 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ marginBottom: "4rem" }}>
             <div className="section-label">Infrastructure</div>
-            <h2 className="section-heading">
-              Our <span>Facilities</span>
-            </h2>
+            <h2 className="section-heading">Our <span>Facilities</span></h2>
           </div>
         </Reveal>
-
         <Reveal delay={100}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "0.8fr 1.2fr", gap: "5rem", alignItems: "start" }}>
-            {/* Machine list */}
             <div>
               <p style={{ fontSize: "0.92rem", color: "rgba(232,237,242,0.45)", lineHeight: 1.9, marginBottom: "2rem", fontWeight: 300 }}>
                 Our plant houses a comprehensive range of modern fabrication and processing machinery — enabling complex projects with speed and precision.
               </p>
-              <div style={{
-                border: "1px solid rgba(255,255,255,0.06)",
-                overflow: "hidden",
-              }}>
+              <div style={{ border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
                 {FACILITIES.map((f, i) => (
                   <div key={i} className="facility-item">
                     <div className="facility-dot" />
@@ -926,26 +879,18 @@ export default function SSEnterprisesLanding() {
                 ))}
               </div>
             </div>
-
-            {/* Plant details + gallery */}
             <div>
               <p style={{ fontSize: "0.92rem", color: "rgba(232,237,242,0.45)", lineHeight: 1.9, marginBottom: "2.5rem", fontWeight: 300 }}>
                 A 5,000 sq.ft. plant with 3,000 sq.ft. built-up space, 2 owned vehicles, and a technically sound team of 15 professionals working across departments.
               </p>
-
-              {/* Mini gallery grid */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
                 <div style={{ gridColumn: "span 2", aspectRatio: "16/10", overflow: "hidden", position: "relative" }}>
-                  <img src="/3.jpg" alt="Silver Plating Line" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
-                    onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
-                    onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
+                  <img src="/3.jpg" alt="Silver Plating Line" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(8,12,20,0.6), transparent)" }} />
                 </div>
                 {["/4.jpg", "/5.jpg", "/6.jpg"].map((src, i) => (
-                  <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden", position: "relative" }}>
-                    <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
-                      onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
-                      onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
+                  <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden" }}>
+                    <img src={src} alt="" loading="lazy" decoding="async" className="img-zoom img-zoom-sm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
                 ))}
               </div>
@@ -963,12 +908,9 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ marginBottom: "4rem" }}>
             <div className="section-label">Standards</div>
-            <h2 className="section-heading">
-              Quality at<br /><span>Every Step</span>
-            </h2>
+            <h2 className="section-heading">Quality at<br /><span>Every Step</span></h2>
           </div>
         </Reveal>
-
         <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "start" }}>
           <Reveal delay={100}>
             <div style={{ display: "grid", gap: "1px", border: "1px solid rgba(255,255,255,0.04)" }}>
@@ -986,32 +928,23 @@ export default function SSEnterprisesLanding() {
                     {p.abbr}
                   </div>
                   <div>
-                    <h4 style={{
-                      fontFamily: "'Cormorant Garamond', serif",
-                      fontSize: "1.2rem", fontWeight: 600,
-                      color: "#E8EDF2", marginBottom: "0.4rem",
-                    }}>
-                      {p.title}
-                    </h4>
+                    <h4 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.2rem", fontWeight: 600, color: "#E8EDF2", marginBottom: "0.4rem" }}>{p.title}</h4>
                     <p style={{ fontSize: "0.83rem", color: "rgba(232,237,242,0.45)", lineHeight: 1.75 }}>{p.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
           </Reveal>
-
           <Reveal delay={200}>
             <div style={{ display: "grid", gap: "0.75rem" }}>
               <div style={{ aspectRatio: "16/9", overflow: "hidden", position: "relative" }}>
-                <img src="/7.jpg" alt="Quality" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/7.jpg" alt="Quality" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 <div style={{ position: "absolute", inset: 0, background: "rgba(8,12,20,0.2)" }} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 {["/8.jpg", "/9.jpg"].map((src, i) => (
                   <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden" }}>
-                    <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s" }}
-                      onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.06)"; }}
-                      onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
+                    <img src={src} alt="" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
                 ))}
               </div>
@@ -1042,15 +975,10 @@ export default function SSEnterprisesLanding() {
               ))}
             </div>
           </Reveal>
-
           <Reveal delay={200}>
             <div style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden" }}>
-              <img src="/9.jpg" alt="Safety" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              <div style={{
-                position: "absolute", inset: 0,
-                background: "linear-gradient(135deg, rgba(201,168,76,0.15) 0%, transparent 70%)",
-              }} />
-              {/* Gold corner */}
+              <img src="/9.jpg" alt="Safety" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(201,168,76,0.15) 0%, transparent 70%)" }} />
               <div style={{ position: "absolute", top: 0, left: 0, width: 60, height: 60, borderTop: "2px solid #C9A84C", borderLeft: "2px solid #C9A84C" }} />
               <div style={{ position: "absolute", bottom: 0, right: 0, width: 60, height: 60, borderBottom: "2px solid #C9A84C", borderRight: "2px solid #C9A84C" }} />
             </div>
@@ -1067,9 +995,7 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div className="section-label" style={{ justifyContent: "center" }}>Trusted By</div>
-            <h2 className="section-heading" style={{ marginBottom: "0.5rem" }}>
-              Industry <span>Leaders</span>
-            </h2>
+            <h2 className="section-heading" style={{ marginBottom: "0.5rem" }}>Industry <span>Leaders</span></h2>
             <p style={{ color: "rgba(232,237,242,0.35)", marginBottom: "3.5rem", fontStyle: "italic", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem" }}>
               Serving the backbone of Maharashtra's industrial sector
             </p>
@@ -1087,9 +1013,7 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ marginBottom: "3rem" }}>
             <div className="section-label">Our Work</div>
-            <h2 className="section-heading">
-              Plant & <span>Process</span>
-            </h2>
+            <h2 className="section-heading">Plant & <span>Process</span></h2>
           </div>
         </Reveal>
         <Reveal delay={100}>
@@ -1106,99 +1030,87 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ marginBottom: "4rem" }}>
             <div className="section-label">Inside Our Plant</div>
-            <h2 className="section-heading">
-              A Glimpse of Our <span>World</span>
-            </h2>
+            <h2 className="section-heading">A Glimpse of Our <span>World</span></h2>
             <p style={{ marginTop: "1.2rem", fontSize: "0.92rem", color: "rgba(232,237,242,0.4)", fontWeight: 300, maxWidth: 560, lineHeight: 1.85 }}>
               Step inside S.S. Enterprises — from electroplating lines and fabrication bays to quality labs and finished products.
             </p>
           </div>
         </Reveal>
 
-        {/* Feature row: Plant exterior (large) + Office shots */}
+        {/* Feature row — CSS zoom only, no JS handlers */}
         <Reveal delay={100}>
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "280px 200px", gap: "0.6rem", marginBottom: "0.6rem" }}>
             <div style={{ gridRow: "span 2", overflow: "hidden", position: "relative" }}>
-              <img src="/plantouterimg.jpg" alt="Plant Exterior" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 55%)" }} />
-              <div style={{ position: "absolute", bottom: "1.2rem", left: "1.2rem" }}>
+              <img src="/plantouterimg.jpg" alt="Plant Exterior" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 55%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "1.2rem", left: "1.2rem", pointerEvents: "none" }}>
                 <div style={{ color: "#C9A84C", fontSize: "0.65rem", letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", marginBottom: "0.3rem" }}>Our Facility</div>
                 <div style={{ color: "#E8EDF2", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", fontWeight: 300 }}>Plant Exterior</div>
               </div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/office.jpg" alt="Office" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Office</div>
+              <img src="/office.jpg" alt="Office" loading="lazy" decoding="async" className="img-zoom img-zoom-sm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase", pointerEvents: "none" }}>Office</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/office2.jpg" alt="Administration" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Administration</div>
+              <img src="/office2.jpg" alt="Administration" loading="lazy" decoding="async" className="img-zoom img-zoom-sm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase", pointerEvents: "none" }}>Administration</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/chemicals.jpg" alt="Chemicals" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Process Chemicals</div>
+              <img src="/chemicals.jpg" alt="Chemicals" loading="lazy" decoding="async" className="img-zoom img-zoom-sm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase", pointerEvents: "none" }}>Process Chemicals</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/sliverplaintingplant.jpg" alt="Silver Plating Plant" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Plating Plant</div>
+              <img src="/sliverplaintingplant.jpg" alt="Silver Plating Plant" loading="lazy" decoding="async" className="img-zoom img-zoom-sm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase", pointerEvents: "none" }}>Plating Plant</div>
             </div>
           </div>
         </Reveal>
 
-        {/* Output row: wide silver output + two smaller */}
+        {/* Output row */}
         <Reveal delay={150}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.6rem", marginBottom: "0.6rem" }}>
             <div style={{ height: 220, overflow: "hidden", position: "relative", gridColumn: "span 2" }}>
-              <img src="/silverplaintinoutput.jpg" alt="Silver Plating Output" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.65) 0%, transparent 55%)" }} />
-              <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
+              <img src="/silverplaintinoutput.jpg" alt="Silver Plating Output" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.65) 0%, transparent 55%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "1rem", left: "1rem", pointerEvents: "none" }}>
                 <div style={{ color: "#C9A84C", fontSize: "0.62rem", letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif" }}>Product Output</div>
                 <div style={{ color: "#E8EDF2", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.25rem", fontWeight: 300 }}>Silver Plating Output</div>
               </div>
             </div>
             <div style={{ height: 220, overflow: "hidden", position: "relative" }}>
-              <img src="/sliverplaintingoutput.jpg" alt="Plating Output" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Plating Output</div>
+              <img src="/sliverplaintingoutput.jpg" alt="Plating Output" loading="lazy" decoding="async" className="img-zoom img-zoom-sm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase", pointerEvents: "none" }}>Plating Output</div>
             </div>
           </div>
         </Reveal>
 
-        {/* Finished products wide banner */}
+        {/* Finished products banner */}
         <Reveal delay={180}>
           <div style={{ height: 260, overflow: "hidden", position: "relative", marginBottom: "0.6rem" }}>
-            <img src="/finished product.jpg" alt="Finished Products" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-              onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.04)"; }}
-              onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(8,12,20,0.75) 30%, transparent 100%)" }} />
-            <div style={{ position: "absolute", top: "50%", left: "2.5rem", transform: "translateY(-50%)" }}>
+            <img src="/finished product.jpg" alt="Finished Products" loading="lazy" decoding="async" className="img-zoom" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(8,12,20,0.75) 30%, transparent 100%)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", top: "50%", left: "2.5rem", transform: "translateY(-50%)", pointerEvents: "none" }}>
               <div style={{ color: "#C9A84C", fontSize: "0.65rem", letterSpacing: 4, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", marginBottom: "0.5rem" }}>End Result</div>
               <div style={{ color: "#E8EDF2", fontFamily: "'Cormorant Garamond', serif", fontSize: "2.2rem", fontWeight: 300, lineHeight: 1.1 }}>Finished <span style={{ color: "#C9A84C", fontStyle: "italic" }}>Products</span></div>
             </div>
           </div>
         </Reveal>
 
-        {/* Uniform 4-col grid: all IMG_* photos */}
+        {/* 4-col photo grid — contentVisibility: auto skips off-screen rendering entirely */}
         <Reveal delay={200}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.6rem" }}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "0.6rem",
+            contentVisibility: "auto" as React.CSSProperties["contentVisibility"],
+            containIntrinsicSize: "0 1200px",
+          }}>
             {[
               { src: "/IMG_1071.jpg", label: "Facility View" },
               { src: "/IMG_1072.jpg", label: "Production Line" },
@@ -1221,24 +1133,9 @@ export default function SSEnterprisesLanding() {
               { src: "/IMG_1102.jpg", label: "Full Plant" },
               { src: "/17.jpg", label: "Facility" },
             ].map((item, i) => (
-              <div key={i} style={{ height: 190, overflow: "hidden", position: "relative" }}>
-                <img src={item.src} alt={item.label} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.1)"; }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
-                <div style={{
-                  position: "absolute", inset: 0,
-                  background: "linear-gradient(to top, rgba(8,12,20,0.75) 0%, transparent 55%)",
-                  opacity: 0, transition: "opacity 0.3s",
-                }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.opacity = "1"; }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.opacity = "0"; }}
-                />
-                <div style={{
-                  position: "absolute", bottom: "0.6rem", left: "0.7rem",
-                  color: "rgba(232,237,242,0.8)", fontSize: "0.58rem",
-                  letterSpacing: 2, textTransform: "uppercase",
-                  fontFamily: "'DM Sans', sans-serif", pointerEvents: "none",
-                }}>{item.label}</div>
+              <div key={i} className="photo-tile">
+                <img src={item.src} alt={item.label} loading="lazy" decoding="async" />
+                <div className="photo-tile-label">{item.label}</div>
               </div>
             ))}
           </div>
@@ -1254,12 +1151,9 @@ export default function SSEnterprisesLanding() {
         <Reveal>
           <div style={{ marginBottom: "4rem" }}>
             <div className="section-label">Reach Us</div>
-            <h2 className="section-heading">
-              Let's <span>Connect</span>
-            </h2>
+            <h2 className="section-heading">Let's <span>Connect</span></h2>
           </div>
         </Reveal>
-
         <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6rem" }}>
           <Reveal delay={100}>
             <div>
@@ -1271,8 +1165,7 @@ export default function SSEnterprisesLanding() {
               ].map((item, i) => (
                 <div key={i} style={{
                   display: "flex", gap: "1.2rem", alignItems: "flex-start",
-                  marginBottom: "2rem",
-                  paddingBottom: "2rem",
+                  marginBottom: "2rem", paddingBottom: "2rem",
                   borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none",
                 }}>
                   <div style={{
@@ -1284,48 +1177,22 @@ export default function SSEnterprisesLanding() {
                     {item.icon}
                   </div>
                   <div>
-                    <div style={{
-                      fontSize: "0.62rem", fontWeight: 600,
-                      letterSpacing: 2.5, textTransform: "uppercase",
-                      color: "rgba(201,168,76,0.6)",
-                      marginBottom: "0.3rem",
-                    }}>
+                    <div style={{ fontSize: "0.62rem", fontWeight: 600, letterSpacing: 2.5, textTransform: "uppercase", color: "rgba(201,168,76,0.6)", marginBottom: "0.3rem" }}>
                       {item.label}
                     </div>
-                    <p style={{ fontSize: "0.92rem", color: "rgba(232,237,242,0.7)", fontWeight: 300, lineHeight: 1.6 }}>
-                      {item.value}
-                    </p>
+                    <p style={{ fontSize: "0.92rem", color: "rgba(232,237,242,0.7)", fontWeight: 300, lineHeight: 1.6 }}>{item.value}</p>
                   </div>
                 </div>
               ))}
             </div>
           </Reveal>
-
           <Reveal delay={200}>
             <form onSubmit={e => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <input
-                type="text" placeholder="Your Name"
-                className="contact-input"
-                value={formData.name}
-                onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-              />
-              <input
-                type="email" placeholder="Email Address"
-                className="contact-input"
-                value={formData.email}
-                onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-              />
-              <textarea
-                placeholder="Your Message"
-                className="contact-input"
-                value={formData.message}
-                onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
-                style={{ minHeight: 130, resize: "vertical" }}
-              />
+              <input type="text" placeholder="Your Name" className="contact-input" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} />
+              <input type="email" placeholder="Email Address" className="contact-input" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} />
+              <textarea placeholder="Your Message" className="contact-input" value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))} style={{ minHeight: 130, resize: "vertical" }} />
               <div style={{ display: "flex", justifyContent: "flex-start", marginTop: "0.5rem" }}>
-                <button type="submit" className="gold-btn">
-                  Send Message
-                </button>
+                <button type="submit" className="gold-btn">Send Message</button>
               </div>
             </form>
           </Reveal>
@@ -1334,8 +1201,7 @@ export default function SSEnterprisesLanding() {
 
       {/* ─── FOOTER ─── */}
       <footer className="footer-pad" style={{
-        padding: "4rem 6rem",
-        background: "#05080F",
+        padding: "4rem 6rem", background: "#05080F",
         borderTop: "1px solid rgba(201,168,76,0.15)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "2rem" }}>
@@ -1347,7 +1213,6 @@ export default function SSEnterprisesLanding() {
               C-2/6 MIDC Ambad, Nashik 422010 · ISO Certified
             </p>
           </div>
-
           <ul style={{ display: "flex", gap: "2rem", listStyle: "none", flexWrap: "wrap" }}>
             {NAV_LINKS.map(l => (
               <li key={l}>
@@ -1357,8 +1222,7 @@ export default function SSEnterprisesLanding() {
                     background: "none", border: "none", cursor: "pointer",
                     color: "rgba(232,237,242,0.35)",
                     fontSize: "0.68rem", letterSpacing: 2, textTransform: "uppercase",
-                    fontFamily: "'DM Sans', sans-serif",
-                    transition: "color 0.2s",
+                    fontFamily: "'DM Sans', sans-serif", transition: "color 0.2s",
                   }}
                   onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#C9A84C"; }}
                   onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "rgba(232,237,242,0.35)"; }}
@@ -1368,7 +1232,6 @@ export default function SSEnterprisesLanding() {
               </li>
             ))}
           </ul>
-
           <p style={{ fontSize: "0.7rem", color: "rgba(232,237,242,0.2)", letterSpacing: 0.5 }}>
             © 2025 S.S. Enterprises. All Rights Reserved.
           </p>
