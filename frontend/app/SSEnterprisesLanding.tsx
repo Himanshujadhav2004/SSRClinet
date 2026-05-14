@@ -122,11 +122,11 @@ function Reveal({ children, delay = 0, className = "", style = {} }: { children:
 
 function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
-  const [prev, setPrev] = useState(null);
+  const [prev, setPrev] = useState<number | null>(null);
   const [animating, setAnimating] = useState(false);
-  const timerRef = useRef(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const goTo = useCallback((idx) => {
+  const goTo = useCallback((idx: number) => {
     if (animating) return;
     setAnimating(true);
     setPrev(current);
@@ -138,7 +138,7 @@ function HeroSlideshow() {
     timerRef.current = setInterval(() => {
       goTo((current + 1) % SLIDESHOW_IMAGES.length);
     }, 5000);
-    return () => clearInterval(timerRef.current);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [current, goTo]);
 
   return (
@@ -337,7 +337,7 @@ export default function SSEnterprisesLanding() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollTo = (id) => {
+  const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
   };
@@ -640,7 +640,6 @@ export default function SSEnterprisesLanding() {
           </h1>
 
           <p style={{
-            fontSize: "1rem",
             color: "rgba(232,237,242,0.55)",
             fontWeight: 300,
             maxWidth: 480,
@@ -913,15 +912,15 @@ export default function SSEnterprisesLanding() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
                 <div style={{ gridColumn: "span 2", aspectRatio: "16/10", overflow: "hidden", position: "relative" }}>
                   <img src="/3.jpg" alt="Silver Plating Line" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
-                    onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
-                    onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"} />
+                    onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(8,12,20,0.6), transparent)" }} />
                 </div>
                 {["/4.jpg", "/5.jpg", "/6.jpg"].map((src, i) => (
                   <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden", position: "relative" }}>
                     <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
-                      onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"}
-                      onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"} />
+                      onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                   </div>
                 ))}
               </div>
@@ -986,8 +985,8 @@ export default function SSEnterprisesLanding() {
                 {["/8.jpg", "/9.jpg"].map((src, i) => (
                   <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden" }}>
                     <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s" }}
-                      onMouseEnter={e => e.currentTarget.style.transform = "scale(1.06)"}
-                      onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"} />
+                      onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.06)"; }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                   </div>
                 ))}
               </div>
@@ -1046,7 +1045,7 @@ export default function SSEnterprisesLanding() {
             <h2 className="section-heading" style={{ marginBottom: "0.5rem" }}>
               Industry <span>Leaders</span>
             </h2>
-            <p style={{ color: "rgba(232,237,242,0.35)", fontSize: "0.9rem", marginBottom: "3.5rem", fontStyle: "italic", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem" }}>
+            <p style={{ color: "rgba(232,237,242,0.35)", marginBottom: "3.5rem", fontStyle: "italic", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem" }}>
               Serving the backbone of Maharashtra's industrial sector
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.75rem", maxWidth: 900 }}>
@@ -1096,8 +1095,8 @@ export default function SSEnterprisesLanding() {
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "280px 200px", gap: "0.6rem", marginBottom: "0.6rem" }}>
             <div style={{ gridRow: "span 2", overflow: "hidden", position: "relative" }}>
               <img src="/plantouterimg.jpg" alt="Plant Exterior" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.05)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 55%)" }} />
               <div style={{ position: "absolute", bottom: "1.2rem", left: "1.2rem" }}>
                 <div style={{ color: "#C9A84C", fontSize: "0.65rem", letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", marginBottom: "0.3rem" }}>Our Facility</div>
@@ -1106,29 +1105,29 @@ export default function SSEnterprisesLanding() {
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
               <img src="/office.jpg" alt="Office" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Office</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
               <img src="/office2.jpg" alt="Administration" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Administration</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
               <img src="/chemicals.jpg" alt="Chemicals" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Process Chemicals</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
               <img src="/sliverplaintingplant.jpg" alt="Silver Plating Plant" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Plating Plant</div>
             </div>
@@ -1140,8 +1139,8 @@ export default function SSEnterprisesLanding() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.6rem", marginBottom: "0.6rem" }}>
             <div style={{ height: 220, overflow: "hidden", position: "relative", gridColumn: "span 2" }}>
               <img src="/silverplaintinoutput.jpg" alt="Silver Plating Output" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.05)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.65) 0%, transparent 55%)" }} />
               <div style={{ position: "absolute", bottom: "1rem", left: "1rem" }}>
                 <div style={{ color: "#C9A84C", fontSize: "0.62rem", letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif" }}>Product Output</div>
@@ -1150,8 +1149,8 @@ export default function SSEnterprisesLanding() {
             </div>
             <div style={{ height: 220, overflow: "hidden", position: "relative" }}>
               <img src="/sliverplaintingoutput.jpg" alt="Plating Output" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Plating Output</div>
             </div>
@@ -1162,8 +1161,8 @@ export default function SSEnterprisesLanding() {
         <Reveal delay={180}>
           <div style={{ height: 260, overflow: "hidden", position: "relative", marginBottom: "0.6rem" }}>
             <img src="/finished product.jpg" alt="Finished Products" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
-              onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.04)")}
-              onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+              onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.04)"; }}
+              onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(8,12,20,0.75) 30%, transparent 100%)" }} />
             <div style={{ position: "absolute", top: "50%", left: "2.5rem", transform: "translateY(-50%)" }}>
               <div style={{ color: "#C9A84C", fontSize: "0.65rem", letterSpacing: 4, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", marginBottom: "0.5rem" }}>End Result</div>
@@ -1199,15 +1198,15 @@ export default function SSEnterprisesLanding() {
             ].map((item, i) => (
               <div key={i} style={{ height: 190, overflow: "hidden", position: "relative" }}>
                 <img src={item.src} alt={item.label} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
-                  onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.1)")}
-                  onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")} />
+                  onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.1)"; }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                 <div style={{
                   position: "absolute", inset: 0,
                   background: "linear-gradient(to top, rgba(8,12,20,0.75) 0%, transparent 55%)",
                   opacity: 0, transition: "opacity 0.3s",
                 }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = "0")}
+                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.opacity = "1"; }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.opacity = "0"; }}
                 />
                 <div style={{
                   position: "absolute", bottom: "0.6rem", left: "0.7rem",
@@ -1336,8 +1335,8 @@ export default function SSEnterprisesLanding() {
                     fontFamily: "'DM Sans', sans-serif",
                     transition: "color 0.2s",
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color = "#C9A84C"}
-                  onMouseLeave={e => e.currentTarget.style.color = "rgba(232,237,242,0.35)"}
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#C9A84C"; }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "rgba(232,237,242,0.35)"; }}
                 >
                   {l}
                 </button>
