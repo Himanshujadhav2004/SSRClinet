@@ -131,7 +131,7 @@ function HeroSlideshow() {
     setAnimating(true);
     setPrev(current);
     setCurrent(idx);
-    setTimeout(() => { setPrev(null); setAnimating(false); }, 900);
+    setTimeout(() => { setPrev(null); setAnimating(false); }, 1100);
   }, [current, animating]);
 
   useEffect(() => {
@@ -143,21 +143,25 @@ function HeroSlideshow() {
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}>
-      {SLIDESHOW_IMAGES.map((img, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute", inset: 0,
-            backgroundImage: `url(${img.src})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: i === current ? 1 : 0,
-            transform: i === current ? "scale(1)" : "scale(1.04)",
-            transition: "opacity 1.1s cubic-bezier(0.4,0,0.2,1), transform 6s ease",
-            zIndex: i === current ? 2 : 1,
-          }}
-        />
-      ))}
+      {/* Only mount current + prev slide — never all slides at once */}
+      {SLIDESHOW_IMAGES.map((img, i) => {
+        if (i !== current && i !== prev) return null;
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute", inset: 0,
+              backgroundImage: `url(${img.src})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              opacity: i === current ? 1 : 0,
+              // No transform animation — avoids GPU layer thrashing on every slide
+              transition: "opacity 1.1s cubic-bezier(0.4,0,0.2,1)",
+              zIndex: i === current ? 2 : 1,
+            }}
+          />
+        );
+      })}
       {/* Dark overlay */}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(8,12,20,0.85) 40%, rgba(8,12,20,0.4) 100%)", zIndex: 3 }} />
       {/* Subtle grain */}
@@ -222,56 +226,71 @@ function GallerySlideshow() {
     { src: "/IMG_1105.jpg", label: "Final Products" },
     { src: "/10.jpg", label: "Electroplating Line" },
     { src: "/11.jpg", label: "Precision Parts" },
-
     { src: "/13.jpg", label: "CNC Operations" },
-
     { src: "/15.jpg", label: "Finished Products" },
     { src: "/16.jpg", label: "Packaging Unit" },
   ];
 
+  const total = galleryImages.length;
   const [active, setActive] = useState(0);
   const [auto, setAuto] = useState(true);
 
   useEffect(() => {
     if (!auto) return;
-    const t = setInterval(() => setActive(a => (a + 1) % galleryImages.length), 3500);
+    const t = setInterval(() => setActive(a => (a + 1) % total), 3500);
     return () => clearInterval(t);
-  }, [auto]);
+  }, [auto, total]);
 
-  const prev = () => { setAuto(false); setActive(a => (a - 1 + galleryImages.length) % galleryImages.length); };
-  const next = () => { setAuto(false); setActive(a => (a + 1) % galleryImages.length); };
+  const goPrev = () => { setAuto(false); setActive(a => (a - 1 + total) % total); };
+  const goNext = () => { setAuto(false); setActive(a => (a + 1) % total); };
+
+  // Windowed rendering: only mount prev, current, next slides
+  const isVisible = (i: number) => {
+    const p = (active - 1 + total) % total;
+    const n = (active + 1) % total;
+    return i === active || i === p || i === n;
+  };
 
   return (
     <div style={{ position: "relative" }}>
       {/* Main display */}
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0d1117" }}>
-        {galleryImages.map((img, i) => (
-          <div key={i} style={{
-            position: "absolute", inset: 0,
-            opacity: i === active ? 1 : 0,
-            transform: i === active ? "scale(1)" : "scale(1.05)",
-            transition: "opacity 0.8s ease, transform 5s ease",
-            zIndex: i === active ? 2 : 1,
-          }}>
-            <img src={img.src} alt={img.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            <div style={{
+        {galleryImages.map((img, i) => {
+          if (!isVisible(i)) return null; // Only mount 3 slides at a time
+          return (
+            <div key={i} style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 50%)",
-            }} />
-            <div style={{
-              position: "absolute", bottom: "1.5rem", left: "1.5rem",
-              color: "#fff", fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "1.1rem", fontStyle: "italic", letterSpacing: 1,
+              opacity: i === active ? 1 : 0,
+              // No scale transform — avoids GPU layers on hidden slides
+              transition: "opacity 0.8s ease",
+              zIndex: i === active ? 2 : 1,
             }}>
-              {img.label}
+              <img
+                src={img.src}
+                alt={img.label}
+                loading={i === active ? "eager" : "lazy"}
+                decoding="async"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 50%)",
+              }} />
+              <div style={{
+                position: "absolute", bottom: "1.5rem", left: "1.5rem",
+                color: "#fff", fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "1.1rem", fontStyle: "italic", letterSpacing: 1,
+              }}>
+                {img.label}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Nav arrows */}
         {[
-          { dir: "left", action: prev, symbol: "‹" },
-          { dir: "right", action: next, symbol: "›" },
+          { dir: "left", action: goPrev, symbol: "\u2039" },
+          { dir: "right", action: goNext, symbol: "\u203a" },
         ].map(({ dir, action, symbol }) => (
           <button key={dir} onClick={action} style={{
             position: "absolute", top: "50%", transform: "translateY(-50%)",
@@ -289,7 +308,7 @@ function GallerySlideshow() {
         ))}
       </div>
 
-      {/* Thumbnails */}
+      {/* Thumbnails — lazy loaded */}
       <div style={{
         display: "flex", gap: "0.5rem", marginTop: "0.75rem",
         overflowX: "auto", paddingBottom: "0.25rem",
@@ -307,7 +326,13 @@ function GallerySlideshow() {
               transition: "all 0.25s",
             }}
           >
-            <img src={img.src} alt={img.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img
+              src={img.src}
+              alt={img.label}
+              loading="lazy"
+              decoding="async"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </div>
         ))}
       </div>
@@ -734,7 +759,7 @@ export default function SSEnterprisesLanding() {
                 overflow: "hidden",
                 boxShadow: "0 40px 80px rgba(0,0,0,0.5)",
               }}>
-                <img src="/18.jpg" alt="Plating Facility" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/18.jpg" alt="Plating Facility" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 <div style={{
                   position: "absolute", inset: 0,
                   background: "linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 60%)",
@@ -750,7 +775,7 @@ export default function SSEnterprisesLanding() {
                 boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
                 border: "4px solid #080C14",
               }}>
-                <img src="/2.jpg" alt="Components" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/2.jpg" alt="Components" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
 
               {/* Gold accent bar */}
@@ -911,14 +936,14 @@ export default function SSEnterprisesLanding() {
               {/* Mini gallery grid */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
                 <div style={{ gridColumn: "span 2", aspectRatio: "16/10", overflow: "hidden", position: "relative" }}>
-                  <img src="/3.jpg" alt="Silver Plating Line" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
+                  <img src="/3.jpg" alt="Silver Plating Line" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
                     onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
                     onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(8,12,20,0.6), transparent)" }} />
                 </div>
                 {["/4.jpg", "/5.jpg", "/6.jpg"].map((src, i) => (
                   <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden", position: "relative" }}>
-                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
+                    <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
                       onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
                       onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                   </div>
@@ -978,13 +1003,13 @@ export default function SSEnterprisesLanding() {
           <Reveal delay={200}>
             <div style={{ display: "grid", gap: "0.75rem" }}>
               <div style={{ aspectRatio: "16/9", overflow: "hidden", position: "relative" }}>
-                <img src="/7.jpg" alt="Quality" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/7.jpg" alt="Quality" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 <div style={{ position: "absolute", inset: 0, background: "rgba(8,12,20,0.2)" }} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 {["/8.jpg", "/9.jpg"].map((src, i) => (
                   <div key={i} style={{ aspectRatio: "4/3", overflow: "hidden" }}>
-                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s" }}
+                    <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s" }}
                       onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.06)"; }}
                       onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                   </div>
@@ -1094,7 +1119,7 @@ export default function SSEnterprisesLanding() {
         <Reveal delay={100}>
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "280px 200px", gap: "0.6rem", marginBottom: "0.6rem" }}>
             <div style={{ gridRow: "span 2", overflow: "hidden", position: "relative" }}>
-              <img src="/plantouterimg.jpg" alt="Plant Exterior" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/plantouterimg.jpg" alt="Plant Exterior" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.7) 0%, transparent 55%)" }} />
@@ -1104,28 +1129,28 @@ export default function SSEnterprisesLanding() {
               </div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/office.jpg" alt="Office" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/office.jpg" alt="Office" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Office</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/office2.jpg" alt="Administration" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/office2.jpg" alt="Administration" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Administration</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/chemicals.jpg" alt="Chemicals" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/chemicals.jpg" alt="Chemicals" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: "0.7rem", left: "0.7rem", color: "rgba(232,237,242,0.8)", fontSize: "0.62rem", letterSpacing: 2, textTransform: "uppercase" }}>Process Chemicals</div>
             </div>
             <div style={{ overflow: "hidden", position: "relative" }}>
-              <img src="/sliverplaintingplant.jpg" alt="Silver Plating Plant" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/sliverplaintingplant.jpg" alt="Silver Plating Plant" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
@@ -1138,7 +1163,7 @@ export default function SSEnterprisesLanding() {
         <Reveal delay={150}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.6rem", marginBottom: "0.6rem" }}>
             <div style={{ height: 220, overflow: "hidden", position: "relative", gridColumn: "span 2" }}>
-              <img src="/silverplaintinoutput.jpg" alt="Silver Plating Output" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/silverplaintinoutput.jpg" alt="Silver Plating Output" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.05)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.65) 0%, transparent 55%)" }} />
@@ -1148,7 +1173,7 @@ export default function SSEnterprisesLanding() {
               </div>
             </div>
             <div style={{ height: 220, overflow: "hidden", position: "relative" }}>
-              <img src="/sliverplaintingoutput.jpg" alt="Plating Output" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+              <img src="/sliverplaintingoutput.jpg" alt="Plating Output" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
                 onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.08)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,12,20,0.6) 0%, transparent 60%)" }} />
@@ -1160,7 +1185,7 @@ export default function SSEnterprisesLanding() {
         {/* Finished products wide banner */}
         <Reveal delay={180}>
           <div style={{ height: 260, overflow: "hidden", position: "relative", marginBottom: "0.6rem" }}>
-            <img src="/finished product.jpg" alt="Finished Products" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
+            <img src="/finished product.jpg" alt="Finished Products" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s ease" }}
               onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.04)"; }}
               onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(8,12,20,0.75) 30%, transparent 100%)" }} />
@@ -1197,7 +1222,7 @@ export default function SSEnterprisesLanding() {
               { src: "/17.jpg", label: "Facility" },
             ].map((item, i) => (
               <div key={i} style={{ height: 190, overflow: "hidden", position: "relative" }}>
-                <img src={item.src} alt={item.label} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
+                <img src={item.src} alt={item.label} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.6s ease" }}
                   onMouseEnter={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1.1)"; }}
                   onMouseLeave={(e: React.MouseEvent<HTMLImageElement>) => { e.currentTarget.style.transform = "scale(1)"; }} />
                 <div style={{
