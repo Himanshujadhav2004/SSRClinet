@@ -116,7 +116,7 @@ const GALLERY_IMAGES = [
   { src: "/11.jpg", label: "Precision Parts" },
   { src: "/13.jpg", label: "CNC Operations" },
   { src: "/15.jpg", label: "Finished Products" },
-  { src: "/16.jpg", label: "Packaging Unit" },
+
 ];
 
 function useInView(threshold = 0.12) {
