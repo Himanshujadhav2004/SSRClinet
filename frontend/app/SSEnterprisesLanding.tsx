@@ -41,10 +41,10 @@ const SERVICES = [
     desc: "Corrosion-resistant tin coatings for ferrous and non-ferrous substrates. Ideal for automotive and electronics applications.",
   },
   {
-    icon: "🏗️",
+    icon: "🟠",
     tag: "03",
-    title: "FRP Components",
-    desc: "Custom fibre-reinforced plastic fabrication for industrial, electrical, and structural use cases — engineered to spec.",
+    title: "Copper Electroplating",
+    desc: "Premium copper plating solutions for enhanced conductivity, corrosion resistance, and surface finishing across industrial and electronic components.",
   },
   {
     icon: "⚙️",
@@ -65,7 +65,6 @@ const SERVICES = [
     desc: "From raw input to packaged, labelled, and delivered — we manage the entire production and logistics chain.",
   },
 ];
-
 const FACILITIES = [
   "VMC Machine",
   "Trobe Machine Automatic",
@@ -155,7 +154,7 @@ const GALLERY_IMAGES = [
   { src: "/IMG_1088.jpg", label: "Processing Unit" },
   { src: "/IMG_1089.jpg", label: "Components" },
   { src: "/IMG_1090.jpg", label: "Production" },
-  { src: "/IMG_1091.jpg", label: "Fabrication" },
+
   { src: "/IMG_1092.jpg", label: "Workshop" },
   { src: "/IMG_1095.jpg", label: "Plating Line" },
   { src: "/IMG_1097.jpg", label: "Quality Check" },
@@ -1041,8 +1040,7 @@ export default function SSEnterprisesLanding() {
             <span style={{ color: "#C9A84C", fontStyle: "italic" }}>
               Electroplating
             </span>
-            <br />
-            & Fabrication
+
           </h1>
 
           <p
@@ -1297,7 +1295,7 @@ export default function SSEnterprisesLanding() {
                 Component
               </h2>
               {[
-                "S.S. Enterprises is a multi-capability industrial manufacturer based in MIDC Ambad, Nashik — specialising in electroplating, fabrication, FRP components, and supply of ferrous and non-ferrous assemblies.",
+                "S.S. Enterprises is a multi-capability industrial manufacturer based in MIDC Ambad, Nashik — specialising in electroplating, FRP components, and supply of ferrous and non-ferrous assemblies.",
                 "Founded on a commitment to precision and reliability, we serve clients across automotive, electrical, and engineering sectors with a holistic approach: from raw material supply through to finished, packaged products.",
                 "Our in-house Silver & Tin electroplating lines, FRP component manufacturing, and XRF-verified quality testing make us a one-stop industrial partner trusted by leading names across Maharashtra.",
               ].map((text, i) => (
